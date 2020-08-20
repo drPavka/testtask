@@ -53,62 +53,55 @@ function importCalendarLibraries( array $dirs, string $pattern ): string {
     <script>
 
         (function () {
-            const loader = function () {
-                try {
-                    const createCalendar = function () {
-                        const calendarEl = document.getElementById('calendar');
-                        if (!calendarEl) throw new Error('Calendar container is not set');
-                        const onChange = function ({event, revert}) {
-                            window.fetch('<?= API_PATH ?>', {
-                                method: 'POST',
-                                headers: {
-                                    'Content-Type': 'application/json'
-                                },
-                                body: JSON.stringify({
-                                    start: event.start,
-                                    end: event.end,
-                                    id: event.id,
-                                    scope: 'update'
-                                })
-                            }).then((response) => {
-                                if (!response.ok) throw new Error(response.statusText);
-                            }).catch((e) => {
-                                //console.error(e);
-                                revert();
-                            });
-                        };
-                        const _ = new FullCalendar.Calendar(calendarEl, {
-                            plugins: ['timeGrid', 'interaction',],
-                            defaultView: 'timeGridWeek',
-                            editable: true,
-                            selectable: true,
-                            eventColor: '#fff',
-                            eventBackgroundColor: '#000',
-                            eventDrop: onChange,
-                            eventResize: onChange
-                        });
-                        _.render();
-                        return _;
-                    }
-
-                    const populateEvent = function (calendar, eventData) {
-                        calendar.addEvent(eventData);
-                        calendar.gotoDate(calendar.getEventById(eventData.id).start);
-                    }
-
-                    const calendar = createCalendar();
-                    populateEvent(calendar, {
-                        start: '2020-05-10 08:00:00',
-                        end: '2020-05-10 10:00:00',
-                        title: 'Meeting',
-                        id: 1
+            function Calendar(calendarEl) {
+                if (!calendarEl) throw new Error('Calendar container is not set');
+                const onChange = function ({event, revert}) {
+                    window.fetch('<?= API_PATH ?>', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json'
+                        },
+                        body: JSON.stringify({
+                            start: event.start,
+                            end: event.end,
+                            id: event.id,
+                            scope: 'update'
+                        })
+                    }).then((response) => {
+                        if (!response.ok) throw new Error(response.statusText);
+                    }).catch((e) => {
+                        //console.error(e);
+                        revert();
                     });
-                } catch (e) {
-                    console.error(e)
-                }
+                };
+                this.calendar = new FullCalendar.Calendar(calendarEl, {
+                    plugins: ['timeGrid', 'interaction',],
+                    defaultView: 'timeGridWeek',
+                    editable: true,
+                    selectable: true,
+                    eventColor: '#fff',
+                    eventBackgroundColor: '#000',
+                    eventDrop: onChange,
+                    eventResize: onChange
+                });
+                this.calendar.render();
+            }
+            Calendar.prototype.populateEvent = function (eventData) {
+                this.calendar.addEvent(eventData);
+                this.calendar.gotoDate(
+                    this.calendar.getEventById(eventData.id).start
+                );
             }
 
-            document.addEventListener('DOMContentLoaded', loader);
+            document.addEventListener('DOMContentLoaded', function () {
+                const calendar = new Calendar(document.getElementById('calendar'));
+                calendar.populateEvent({
+                    start: '2020-05-10 08:00:00',
+                    end: '2020-05-10 10:00:00',
+                    title: 'Meeting',
+                    id: 1
+                });
+            });
 
         })();
 
