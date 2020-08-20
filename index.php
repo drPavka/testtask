@@ -1,6 +1,14 @@
 <?php
 define( 'CALENDAR_PATH', 'fullcalendar-4.4.0/packages' );
 define( 'API_PATH', '/api' );
+/**
+ * Quick tool to add needed calendar libraries
+ *
+ * @param array $dirs
+ * @param string $pattern
+ *
+ * @return string
+ */
 function importCalendarLibraries( array $dirs, string $pattern ): string {
 	return join(
 		array_map(
@@ -53,6 +61,12 @@ function importCalendarLibraries( array $dirs, string $pattern ): string {
     <script>
 
         (function () {
+            /**
+             * Custom calendar class
+             *
+             * @param calendarEl DOMElement
+             * @constructor
+             */
             function Calendar(calendarEl) {
                 if (!calendarEl) throw new Error('Calendar container is not set');
                 const onChange = function ({event, revert}) {
@@ -86,6 +100,11 @@ function importCalendarLibraries( array $dirs, string $pattern ): string {
                 });
                 this.calendar.render();
             }
+
+            /**
+             * create new event and scroll calendar view to it
+             * @param eventData FullCalendar.EventInfo
+             */
             Calendar.prototype.populateEvent = function (eventData) {
                 this.calendar.addEvent(eventData);
                 this.calendar.gotoDate(
@@ -94,6 +113,7 @@ function importCalendarLibraries( array $dirs, string $pattern ): string {
             }
 
             document.addEventListener('DOMContentLoaded', function () {
+                // Main logic
                 const calendar = new Calendar(document.getElementById('calendar'));
                 calendar.populateEvent({
                     start: '2020-05-10 08:00:00',
